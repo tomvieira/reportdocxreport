@@ -8,15 +8,15 @@ import fr.opensagres.xdocreport.document.registry.XDocReportRegistry;
 import fr.opensagres.xdocreport.template.IContext;
 import fr.opensagres.xdocreport.template.TemplateEngineKind;
 import fr.opensagres.xdocreport.template.formatter.FieldsMetadata;
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -24,7 +24,8 @@ import javax.enterprise.context.RequestScoped;
 import javax.faces.context.FacesContext;
 import javax.inject.Named;
 import org.apache.poi.xwpf.converter.pdf.PdfOptions;
-import org.jopendocument.dom.ODSingleXMLDocument;
+import org.primefaces.model.DefaultStreamedContent;
+import org.primefaces.model.StreamedContent;
 
 /**
  *
@@ -34,49 +35,20 @@ import org.jopendocument.dom.ODSingleXMLDocument;
 @RequestScoped
 public class ReportMB implements Serializable {
 
-    public void joinDocuments() {
-        try {
-            // Load 2 text documents
-            //InputStream in1 = FacesContext.getCurrentInstance().getExternalContext().getResourceAsStream("/resources/ppra_padrao.odt");
-            //InputStream in2 = FacesContext.getCurrentInstance().getExternalContext().getResourceAsStream("/resources/capa.odt");
-            /*if (new BOMInputStream(in1).hasBOM()) {
-                System.out.println("BOM found");
-            } else {
-                System.out.println("BOM not found");
-            }*/                        
-            String[] commands = {"/bin/bash", "-c", "ooo_cat /tmp/teste.odt /tmp/teste2.odt > /tmp/bozo.odt"};
-            Process p = Runtime.getRuntime().exec(commands);
-            p.waitFor();
-            p.destroy();
-            System.out.println("Gerado");
-            
-            // Save to file and Open the document with OpenOffice.org !
-            //OOUtils.open(p1.saveToPackageAs(new File("cat")));
-        } catch (Exception ex) {
-            Logger.getLogger(ReportMB.class.getName()).log(Level.SEVERE, null, ex);
-        }
+    private static final Logger LOGGER = Logger.getLogger(ReportMB.class.getName());
+
+    private StreamedContent file;
+
+//    public FileDownloadView() {
+//        InputStream stream = FacesContext.getCurrentInstance().getExternalContext().getResourceAsStream("/resources/demo/images/optimus.jpg");
+//        file = new DefaultStreamedContent(stream, "image/jpg", "downloaded_optimus.jpg");
+//    }
+    public StreamedContent getFile() {
+        return file;
     }
 
     public void generateReport() {
         try {
-            joinDocuments();
-            
-            InputStream in = FacesContext.getCurrentInstance().getExternalContext().getResourceAsStream("/resources/capa.odt");
-            IXDocReport report = XDocReportRegistry.getRegistry().loadReport(in, TemplateEngineKind.Velocity);
-
-            FieldsMetadata metadata = report.createFieldsMetadata();
-            //metadata.load( "developers", Developer.class, true );
-//            metadata.addFieldAsList("developers.nome");
-//            metadata.addFieldAsList("developers.telefone");
-//            metadata.addFieldAsList("developers.linguagem");
-            report.setFieldsMetadata(metadata);
-
-            // 2) Create context Java model
-            IContext context = report.createContext();
-
-//            List<Developer> developers = new ArrayList<>();
-//            developers.add(new Developer("José", "(11)96596-0277", "JAVA"));
-//            developers.add(new Developer("Maria", "(11)98952-6499", "DELPHI"));
             PpraDTO ppra = new PpraDTO();
             ppra.setAno("2017-2018");
             ppra.setDataEmissao("24/05/2017");
@@ -93,7 +65,7 @@ public class ReportMB implements Serializable {
             unidade.setGrauRisco("2");
             unidade.setUf("SP");
             ppra.setUnidade(unidade);
-            ArrayList<ReconhecimentoRiscoDTO> reconhecimentos = new ArrayList<ReconhecimentoRiscoDTO>();
+            ArrayList<ReconhecimentoRiscoDTO> reconhecimentos = new ArrayList<>();
             ReconhecimentoRiscoDTO reconhecimento = new ReconhecimentoRiscoDTO();
             SetorDTO setor = new SetorDTO();
             setor.setNomeSetor("Departamento de Teste");
@@ -126,18 +98,19 @@ public class ReportMB implements Serializable {
 
             reconhecimentos.add(reconhecimento2);
             ppra.setReconhecimentosRisco(reconhecimentos);
-            context.put("ppra", ppra);
-
-            //Options options = Options.getTo(ConverterTypeTo.PDF).via(ConverterTypeVia.XWPF);
-            Options options = Options.getTo(ConverterTypeTo.PDF).via(ConverterTypeVia.ODFDOM);
-            PdfOptions pdfOptions = PdfOptions.create();
-            options.subOptions(pdfOptions);
-
-            //OutputStream out = new FileOutputStream(new File("/tmp/original.pdf"));
-            OutputStream out = new FileOutputStream(new File("/tmp/capa.pdf"));
-            //report.process(context, out);  
-            report.convert(context, options, out);
-
+            HashMap<String, Object> objetoBase = new HashMap<>();
+            objetoBase.put("ppra", ppra);
+            
+            
+            ReportGenerator reportGenerator = new ReportGenerator();
+            List<String> templates = new ArrayList<>();            
+            templates.add("capa.odt");
+            templates.add("protocolo_entrega.odt");
+            templates.add("texto_introdutorio.odt");
+            templates.add("ppra_padrao.odt");
+            List<String> arquivosGerados = reportGenerator.generate(objetoBase, templates);
+            File completo = reportGenerator.joinDocuments("ppra.odt",arquivosGerados);
+            file = new DefaultStreamedContent(new FileInputStream(completo), FacesContext.getCurrentInstance().getExternalContext().getMimeType(completo.getPath()),completo.getName());
             System.out.println("Finalizado");
         } catch (Exception e) {
             e.printStackTrace();
