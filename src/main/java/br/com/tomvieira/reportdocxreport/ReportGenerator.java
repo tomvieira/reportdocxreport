@@ -16,6 +16,8 @@ import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.faces.context.FacesContext;
+import org.jdom.JDOMException;
+import org.jopendocument.dom.ODSingleXMLDocument;
 
 /**
  *
@@ -51,22 +53,27 @@ public class ReportGenerator {
         }
     }
 
-    public File joinDocuments(String finalName,List<String> documents) {
+    public void close() {
+        apagarDiretorioTemporario();
+    }    
+
+    public File joinDocuments(String finalName, List<String> documents) {
         try {
-            String command = "";
-            for (String document : documents) {
-                command += document + " ";
+            File f1 = new File(documents.get(0));
+            ODSingleXMLDocument p1 = ODSingleXMLDocument.createFromPackage(f1);
+
+            for (int i = 1; i < documents.size(); i++) {
+                File f2 = new File(documents.get(i));
+                ODSingleXMLDocument p2 = ODSingleXMLDocument.createFromPackage(f2);
+                p1.add(p2);
             }
-            command += "> " + dirTemp + "/" + finalName;
-            String[] commands = {"/bin/bash", "-c", "ooo_cat " + command};
-            System.out.println(commands.toString());
-            Process p = Runtime.getRuntime().exec(commands);
-            p.waitFor();
-            p.destroy();            
-            LOGGER.log(Level.INFO, "Arquivo completo gerado");
-            return new File(dirTemp+"/"+finalName);
-        } catch (IOException | InterruptedException ex) {
-            LOGGER.log(Level.SEVERE, "Erro na geração do Arquivo único!", ex);
+            File ultimo = new File(dirTemp + "/" + finalName);
+            p1.saveToPackageAs(ultimo);
+            return ultimo;
+        } catch (JDOMException ex) {
+            Logger.getLogger(ReportGenerator.class.getName()).log(Level.SEVERE, null, ex);
+        } catch (IOException ex) {
+            Logger.getLogger(ReportGenerator.class.getName()).log(Level.SEVERE, null, ex);
         }
         return null;
     }

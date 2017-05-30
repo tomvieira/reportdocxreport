@@ -1,29 +1,15 @@
 package br.com.tomvieira.reportdocxreport;
 
-import fr.opensagres.xdocreport.converter.ConverterTypeTo;
-import fr.opensagres.xdocreport.converter.ConverterTypeVia;
-import fr.opensagres.xdocreport.converter.Options;
-import fr.opensagres.xdocreport.document.IXDocReport;
-import fr.opensagres.xdocreport.document.registry.XDocReportRegistry;
-import fr.opensagres.xdocreport.template.IContext;
-import fr.opensagres.xdocreport.template.TemplateEngineKind;
-import fr.opensagres.xdocreport.template.formatter.FieldsMetadata;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import javax.enterprise.context.RequestScoped;
 import javax.faces.context.FacesContext;
 import javax.inject.Named;
-import org.apache.poi.xwpf.converter.pdf.PdfOptions;
 import org.primefaces.model.DefaultStreamedContent;
 import org.primefaces.model.StreamedContent;
 
@@ -39,15 +25,11 @@ public class ReportMB implements Serializable {
 
     private StreamedContent file;
 
-//    public FileDownloadView() {
-//        InputStream stream = FacesContext.getCurrentInstance().getExternalContext().getResourceAsStream("/resources/demo/images/optimus.jpg");
-//        file = new DefaultStreamedContent(stream, "image/jpg", "downloaded_optimus.jpg");
-//    }
     public StreamedContent getFile() {
         return file;
     }
 
-    public void generateReport() {
+    public void generateReport() {                   
         try {
             PpraDTO ppra = new PpraDTO();
             ppra.setAno("2017-2018");
@@ -100,7 +82,7 @@ public class ReportMB implements Serializable {
             ppra.setReconhecimentosRisco(reconhecimentos);
             HashMap<String, Object> objetoBase = new HashMap<>();
             objetoBase.put("ppra", ppra);
-            
+
             
             ReportGenerator reportGenerator = new ReportGenerator();
             List<String> templates = new ArrayList<>();            
@@ -110,11 +92,12 @@ public class ReportMB implements Serializable {
             templates.add("ppra_padrao.odt");
             List<String> arquivosGerados = reportGenerator.generate(objetoBase, templates);
             File completo = reportGenerator.joinDocuments("ppra.odt",arquivosGerados);
-            file = new DefaultStreamedContent(new FileInputStream(completo), FacesContext.getCurrentInstance().getExternalContext().getMimeType(completo.getPath()),completo.getName());
+            file = new DefaultStreamedContent(new FileInputStream(completo), FacesContext.getCurrentInstance().getExternalContext().getMimeType(completo.getPath()),completo.getName());            
+            reportGenerator.close();
             System.out.println("Finalizado");
         } catch (Exception e) {
             e.printStackTrace();
-        }
+        }        
 
     }
 }
