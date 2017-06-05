@@ -29,7 +29,7 @@ public class ReportMB implements Serializable {
         return file;
     }
 
-    public void generateReport() {                   
+    public void generateReport() {
         try {
             PpraDTO ppra = new PpraDTO();
             ppra.setAno("2017-2018");
@@ -47,57 +47,96 @@ public class ReportMB implements Serializable {
             unidade.setGrauRisco("2");
             unidade.setUf("SP");
             ppra.setUnidade(unidade);
-            ArrayList<ReconhecimentoRiscoDTO> reconhecimentos = new ArrayList<>();
-            ReconhecimentoRiscoDTO reconhecimento = new ReconhecimentoRiscoDTO();
-            SetorDTO setor = new SetorDTO();
-            setor.setNomeSetor("Departamento de Teste");
-            setor.setDescricaoSetor("Sala de madeira e sem nenhum piso");
-            reconhecimento.setSetor(setor);
-
-            List<EspecificaoRiscoDTO> especificacoes = new ArrayList<>();
-            EspecificaoRiscoDTO esp = new EspecificaoRiscoDTO();
-            esp.setCargo("Analista de O&M");
-            esp.setQtdeMasculinos(10);
-            esp.setQtdeFeminino(5);
-            especificacoes.add(esp);
-            reconhecimento.setEspecificoesRiscos(especificacoes);
-
-            reconhecimentos.add(reconhecimento);
-
-            ReconhecimentoRiscoDTO reconhecimento2 = new ReconhecimentoRiscoDTO();
-            SetorDTO setor2 = new SetorDTO();
-            setor2.setNomeSetor("Departamento de teste2");
-            setor2.setDescricaoSetor("Sala de madeira e sem nenhum piso2");
-            reconhecimento2.setSetor(setor2);
-
-            List<EspecificaoRiscoDTO> especificacoes2 = new ArrayList<>();
-            EspecificaoRiscoDTO esp2 = new EspecificaoRiscoDTO();
-            esp2.setCargo("Analista de Sistemas");
-            esp2.setQtdeMasculinos(10);
-            esp2.setQtdeFeminino(5);
-            especificacoes2.add(esp2);
-            reconhecimento2.setEspecificoesRiscos(especificacoes2);
-
-            reconhecimentos.add(reconhecimento2);
+            List<ReconhecimentoRiscoDTO> reconhecimentos = new ArrayList<>();
+            for (int i = 0; i < 10; i++) {
+                popularReconhecimentoRisco(reconhecimentos);
+            }
             ppra.setReconhecimentosRisco(reconhecimentos);
             HashMap<String, Object> objetoBase = new HashMap<>();
             objetoBase.put("ppra", ppra);
+            objetoBase.put("newline", "\r\n");
 
-            
             ReportGenerator reportGenerator = new ReportGenerator();
-            List<String> templates = new ArrayList<>();            
+            List<String> templates = new ArrayList<>();
             templates.add("capa.odt");
             templates.add("protocolo_entrega.odt");
             templates.add("texto_introdutorio.odt");
             templates.add("ppra_padrao.odt");
             List<String> arquivosGerados = reportGenerator.generate(objetoBase, templates);
-            File completo = reportGenerator.joinDocuments("ppra.odt",arquivosGerados);
-            file = new DefaultStreamedContent(new FileInputStream(completo), FacesContext.getCurrentInstance().getExternalContext().getMimeType(completo.getPath()),completo.getName());            
+            File completo = reportGenerator.joinDocuments("ppra.odt", arquivosGerados);
+            file = new DefaultStreamedContent(new FileInputStream(completo), FacesContext.getCurrentInstance().getExternalContext().getMimeType(completo.getPath()), completo.getName());
             reportGenerator.close();
             System.out.println("Finalizado");
         } catch (Exception e) {
             e.printStackTrace();
-        }        
+        }
 
+    }
+
+    private void popularReconhecimentoRisco(List<ReconhecimentoRiscoDTO> reconhecimentos) {
+        ReconhecimentoRiscoDTO reconhecimento = new ReconhecimentoRiscoDTO();
+        SetorDTO setor = new SetorDTO();
+        setor.setNomeSetor("Departamento de Teste");
+        setor.setDescricaoSetor("Sala de madeira e sem nenhum piso");
+        reconhecimento.setSetor(setor);
+        List<EspecificaoRiscoDTO> especificacoes = new ArrayList<>();
+        for (int i = 0; i < 30; i++) {
+            popularEspecificacoesRisco(especificacoes);
+        }
+        reconhecimento.setEspecificoesRiscos(especificacoes);
+        reconhecimentos.add(reconhecimento);
+    }
+
+    private void popularEspecificacoesRisco(List<EspecificaoRiscoDTO> especificacoes) {
+        EspecificaoRiscoDTO esp = new EspecificaoRiscoDTO();
+        esp.setCargo("Analista de O&M");
+        esp.setQtdeMasculinos(10);
+        esp.setQtdeFeminino(5);
+        List<String> funcionariosComRisco = new ArrayList<>();
+        popularFuncionariosComRisco(funcionariosComRisco);
+        esp.setFuncionariosComRisco(funcionariosComRisco);
+        List<String> funcionariosSemRisco = new ArrayList<>();
+        popularFuncionariosSemRisco(funcionariosSemRisco);
+        esp.setFuncionariosSemRisco(funcionariosSemRisco);
+        List<DetalhamentoRiscoDTO> detalhamentos = new ArrayList<>();
+        popularDetalhamentosRisco(detalhamentos);
+        esp.setDetalhamentoRisco(detalhamentos);
+        especificacoes.add(esp);
+    }
+
+    private void popularFuncionariosComRisco(List<String> funcionariosComRisco) {
+        funcionariosComRisco.add("Osmar Andrade");
+        funcionariosComRisco.add("Edson Senne");
+        funcionariosComRisco.add("Vanessa");
+        funcionariosComRisco.add("Fabio Mattar");
+        funcionariosComRisco.add("Humberto");
+        funcionariosComRisco.add("Marcos Mion");
+        funcionariosComRisco.add("Ronaldo Baggio");
+        funcionariosComRisco.add("Renato Ramalho");
+    }
+
+    private void popularFuncionariosSemRisco(List<String> funcionariosSemRisco) {
+        funcionariosSemRisco.add("Eder Leal");
+        funcionariosSemRisco.add("Sandro Gonçalves");
+        funcionariosSemRisco.add("Lisandra Cossulin");
+    }
+
+    private void popularDetalhamentosRisco(List<DetalhamentoRiscoDTO> detalhamentos) {
+        DetalhamentoRiscoDTO detalhamentoRiscoDTO = new DetalhamentoRiscoDTO();
+        detalhamentoRiscoDTO.setAgente("Formol");
+        detalhamentoRiscoDTO.setCaracterizacao("Caracterizado");
+        detalhamentoRiscoDTO.setDanosSaude("Sem danos a saude");
+        detalhamentoRiscoDTO.setFonteGeradora("Substância química");
+        detalhamentoRiscoDTO.setFormaAvaliacao("Teste");
+        detalhamentoRiscoDTO.setFrequencia("5.6 l/m");
+        detalhamentoRiscoDTO.setFuncionario("Osmar Andrade");
+        detalhamentoRiscoDTO.setFundamentacao("Sem fundamentação");
+        detalhamentoRiscoDTO.setGrupoAgente("Quimícos");
+        detalhamentoRiscoDTO.setLimiteTolerancia("10 litros");
+        detalhamentoRiscoDTO.setMedidasExistentes("Nenhuma medida");
+        detalhamentoRiscoDTO.setMedidasRecomendadas("sem recomendações");
+        detalhamentoRiscoDTO.setMeiosPropagacao("Líquido");
+        detalhamentoRiscoDTO.setNivelAcao("Baixo");
+        detalhamentos.add(detalhamentoRiscoDTO);
     }
 }
