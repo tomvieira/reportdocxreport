@@ -12,6 +12,8 @@ public class PpraDTO implements Serializable {
     private String ano;
     private String dataEmissao;
     private UnidadeDTO unidade;
+    private String nomeTecnicoAssinatura;
+    private String cargoTecnicoAssinatura;
     private List<ReconhecimentoRiscoDTO> reconhecimentosRisco;
 
     public String getAno() {
@@ -36,7 +38,7 @@ public class PpraDTO implements Serializable {
 
     public void setUnidade(UnidadeDTO unidade) {
         this.unidade = unidade;
-    }    
+    }
 
     public List<ReconhecimentoRiscoDTO> getReconhecimentosRisco() {
         return reconhecimentosRisco;
@@ -45,6 +47,21 @@ public class PpraDTO implements Serializable {
     public void setReconhecimentosRisco(List<ReconhecimentoRiscoDTO> reconhecimentosRisco) {
         this.reconhecimentosRisco = reconhecimentosRisco;
     }
-   
-    
+
+    public String getNomeTecnicoAssinatura() {
+        return nomeTecnicoAssinatura;
+    }
+
+    public void setNomeTecnicoAssinatura(String nomeTecnicoAssinatura) {
+        this.nomeTecnicoAssinatura = nomeTecnicoAssinatura;
+    }
+
+    public String getCargoTecnicoAssinatura() {
+        return cargoTecnicoAssinatura;
+    }
+
+    public void setCargoTecnicoAssinatura(String cargoTecnicoAssinatura) {
+        this.cargoTecnicoAssinatura = cargoTecnicoAssinatura;
+    }
+
 }

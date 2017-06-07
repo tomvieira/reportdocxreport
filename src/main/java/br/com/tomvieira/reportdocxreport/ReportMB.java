@@ -34,6 +34,8 @@ public class ReportMB implements Serializable {
             PpraDTO ppra = new PpraDTO();
             ppra.setAno("2017-2018");
             ppra.setDataEmissao("24/05/2017");
+            ppra.setNomeTecnicoAssinatura("Zezinho Tecnico de Segurança do Trabalho");
+            ppra.setCargoTecnicoAssinatura("Técnico de Segurança do Trabalho");
             UnidadeDTO unidade = new UnidadeDTO();
             unidade.setNome("FEIS - FACULDADE DE ENGENHARIA DE ILHA SOLTEIRA");
             unidade.setBairro("Centro");
@@ -62,6 +64,7 @@ public class ReportMB implements Serializable {
             templates.add("protocolo_entrega.odt");
             templates.add("texto_introdutorio.odt");
             templates.add("ppra_padrao.odt");
+            templates.add("folha_assinaturas.odt");
             List<String> arquivosGerados = reportGenerator.generate(objetoBase, templates);
             File completo = reportGenerator.joinDocuments("ppra.odt", arquivosGerados);
             file = new DefaultStreamedContent(new FileInputStream(completo), FacesContext.getCurrentInstance().getExternalContext().getMimeType(completo.getPath()), completo.getName());
