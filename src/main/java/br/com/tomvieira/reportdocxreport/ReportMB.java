@@ -53,7 +53,10 @@ public class ReportMB implements Serializable {
             for (int i = 0; i < 10; i++) {
                 popularReconhecimentoRisco(reconhecimentos);
             }
+            popularPlanosAcoes(ppra);
             ppra.setReconhecimentosRisco(reconhecimentos);
+            
+            
             HashMap<String, Object> objetoBase = new HashMap<>();
             objetoBase.put("ppra", ppra);
             objetoBase.put("newline", "\r\n");
@@ -65,6 +68,8 @@ public class ReportMB implements Serializable {
             templates.add("texto_introdutorio.odt");
             templates.add("ppra_padrao.odt");
             templates.add("folha_assinaturas.odt");
+            templates.add("cronograma_atividades.odt");
+            templates.add("plano_acao.odt");
             List<String> arquivosGerados = reportGenerator.generate(objetoBase, templates);
             File completo = reportGenerator.joinDocuments("ppra.odt", arquivosGerados);
             file = new DefaultStreamedContent(new FileInputStream(completo), FacesContext.getCurrentInstance().getExternalContext().getMimeType(completo.getPath()), completo.getName());
@@ -83,7 +88,7 @@ public class ReportMB implements Serializable {
         setor.setDescricaoSetor("Sala de madeira e sem nenhum piso");
         reconhecimento.setSetor(setor);
         List<EspecificaoRiscoDTO> especificacoes = new ArrayList<>();
-        for (int i = 0; i < 30; i++) {
+        for (int i = 0; i < 5; i++) {
             popularEspecificacoesRisco(especificacoes);
         }
         reconhecimento.setEspecificoesRiscos(especificacoes);
@@ -141,5 +146,24 @@ public class ReportMB implements Serializable {
         detalhamentoRiscoDTO.setMeiosPropagacao("Líquido");
         detalhamentoRiscoDTO.setNivelAcao("Baixo");
         detalhamentos.add(detalhamentoRiscoDTO);
+    }
+
+    private void popularPlanosAcoes(PpraDTO ppra) {
+        ArrayList<PlanoAcaoDTO> planos = new ArrayList<PlanoAcaoDTO>();
+        for (int i = 0; i < 10; i++) {
+            PlanoAcaoDTO plano = new PlanoAcaoDTO();
+            plano.setAtividade("001 - Programa de gestão de EPIS");
+            plano.setResponsavelExecucao("Zezinho dos testes");
+            plano.setDataInicial("01/01/2017");
+            plano.setDataLimite("31/12/2017");
+            List<String> setores = new ArrayList<>();
+            setores.add("ST ZELADORIA");
+            setores.add("Centro de convivência infantil");
+            setores.add("STS");
+            setores.add("STI");
+            plano.setSetores(setores);
+            planos.add(plano);
+        }
+        ppra.setPlanosAcoes(planos);
     }
 }

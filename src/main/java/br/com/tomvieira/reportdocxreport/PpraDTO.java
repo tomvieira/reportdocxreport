@@ -15,6 +15,7 @@ public class PpraDTO implements Serializable {
     private String nomeTecnicoAssinatura;
     private String cargoTecnicoAssinatura;
     private List<ReconhecimentoRiscoDTO> reconhecimentosRisco;
+    private List<PlanoAcaoDTO> planosAcoes;
 
     public String getAno() {
         return ano;
@@ -63,5 +64,13 @@ public class PpraDTO implements Serializable {
     public void setCargoTecnicoAssinatura(String cargoTecnicoAssinatura) {
         this.cargoTecnicoAssinatura = cargoTecnicoAssinatura;
     }
+
+    public List<PlanoAcaoDTO> getPlanosAcoes() {
+        return planosAcoes;
+    }
+
+    public void setPlanosAcoes(List<PlanoAcaoDTO> planosAcoes) {
+        this.planosAcoes = planosAcoes;
+    }    
 
 }
